@@ -1,0 +1,13 @@
+CHANGES
+=======
+
+2.0.0 (unreleased)
+------------------
+
+- Rewrite using python-pam, Flask, Python-3 compatible, pip-installable.
+
+
+1.0.0 (2008-07-10)
+------------------
+
+- First working version, using PyPAM.so and webpy.org
