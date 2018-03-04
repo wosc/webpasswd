@@ -24,7 +24,14 @@ Add a rule like this, e.g. in ``/etc/sudoers.d/webpasswd``::
 
     www-data ALL=NOPASSWD:/path/to/venv/bin/webpasswd-change
 
-``www-data`` is the user the webserver that executes the CGI script runs as.
+(``www-data`` means the user the webserver executing the CGI script runs as.)
+
+You can pass the following environment variables to the CGI script:
+
+:WEBPASSWD_CHANGE: Path to ``webpasswd-change`` helper. If unset, assumes
+    a virtualenv installation (so it's located next to ``webpasswd-cgi``)
+:WEBPASSWD_STYLESHEET: URL to a stylesheet to link to instead of using the
+    built-in styles
 
 
 Running tests

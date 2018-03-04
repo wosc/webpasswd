@@ -10,14 +10,22 @@ setup(
 
     install_requires=[
         'flask',
+        'flask_wtf',
         'python-pam',
         'setuptools',
+        'wtforms',
     ],
+
+    extras_require={'test': [
+        'mock',
+        'pytest',
+    ]},
 
     entry_points={
         'console_scripts': [
             'webpasswd-change = ws.webpasswd.update:main',
-            'webpasswd-cgi = ws.webpasswd.web:main',
+            'webpasswd-cgi = ws.webpasswd.web:cgi',
+            'webpasswd-serve = ws.webpasswd.web:serve',
         ],
     },
 

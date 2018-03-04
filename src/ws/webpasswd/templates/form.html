@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+    <title>{{ hostname }} :: passwd</title>
+{% if stylesheet %}
+    <link rel="stylesheet" type="text/css" href="{{ stylesheet }}"/>
+{% else %}
+    <style type="text/css">
+    /**
+     * Color Scheme Generator by Pixie
+     * http://wellstyled.com/tools/colorscheme2/index-en.html?analog;80;1;180;-1;-1;1;-0.7;0.25;1;0.5;1;-1;-1;1;-0.7;0.25;1;0.5;1;-1;-1;1;-0.7;0.25;1;0.5;1;-1;-1;1;-0.7;0.25;1;0.5;1;0
+     */
+
+    body {
+        color: black;
+
+        font-size: small;
+        font-family: Trebuchet MS, Verdana, Arial, Geneva, sans-serif;
+
+        margin: 10px;
+        padding: 0px;
+
+        width: 750px;
+    }
+
+    #form {
+        float: left;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"],
+    input[type="button"],
+    textarea {
+        border: 1px solid #B37900;
+    }
+
+    label.block {
+        float: left;
+        width: 10em;
+    }
+
+    div.submit {
+        margin-top: 10px
+    }
+
+    fieldset {
+        border-width: 0px;
+        margin: 0px 0px 2px 0px;
+        background-color: #FFEBBF;
+    }
+
+    fieldset h3 {
+        margin-top: 0px;
+        margin-bottom: 5px;
+        color: #B37900;
+    }
+
+    fieldset p {
+        margin-top: 0px;
+    }
+
+    #flash {
+        color: #0E1581;
+        border-left: 2px solid #0E1581;
+        padding-left: 5px;
+        background-color: #C6CAFF;
+    }
+    </style>
+{% endif %}
+    <script type="text/javascript">
+        window.onload = function() {
+            document.form.username.focus();
+        };
+    </script>
+</head>
+
+<body>
+<h1>{{ hostname }}</h1>
+
+{% if flash %}
+    <p id="flash">{{ flash }}</p>
+{% endif %}
+
+<form method="POST" action="." name="form">
+<fieldset>
+<h3>Change UNIX password</h3>
+
+{% if form.errors %}
+    <ul style="font-weight: bold; color: red;">
+    {% for field, msg in form.errors.items() %}
+        <li>{{ form[field].label.text }}: {{ msg | join(',') }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<p>
+{{ form.username.label(class='block') }}
+{{ form.username() }}
+</p>
+
+<p>
+{{ form.current_password.label(class='block') }}
+{{ form.current_password() }}
+</p>
+
+<p>
+{{ form.new_password.label(class='block') }}
+{{ form.new_password() }}
+</p>
+
+<p>
+{{ form.confirm.label(class='block') }}
+{{ form.confirm() }}
+</p>
+</fieldset>
+
+<div class="submit">
+<input type="submit" value="Change password"/>
+</div>
+</form>
+
+</body>
+</html>
