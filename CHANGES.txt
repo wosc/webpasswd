@@ -1,7 +1,7 @@
 CHANGES
 =======
 
-2.0.0 (unreleased)
+2.0.0 (2018-03-04)
 ------------------
 
 - Rewrite using python-pam, Flask, Python-3 compatible, pip-installable.
