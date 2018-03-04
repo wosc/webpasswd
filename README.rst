@@ -25,3 +25,10 @@ Add a rule like this, e.g. in ``/etc/sudoers.d/webpasswd``::
     www-data ALL=NOPASSWD:/path/to/venv/bin/webpasswd-change
 
 ``www-data`` is the user the webserver that executes the CGI script runs as.
+
+
+Running tests
+=============
+
+You'll need to add a user account ``webpasswd``, and interactively during the
+test run reset its password as instructed.
