@@ -67,6 +67,8 @@ def handle_error(error):
 
 
 def cgi():
+    # We only have the one route
+    os.environ['PATH_INFO'] = '/'
     wsgiref.handlers.CGIHandler().run(app.wsgi_app)
 
 
