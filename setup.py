@@ -6,7 +6,7 @@ import glob
 
 setup(
     name='ws.webpasswd',
-    version='2.0.1',
+    version='2.0.2.dev0',
 
     install_requires=[
         'flask',
