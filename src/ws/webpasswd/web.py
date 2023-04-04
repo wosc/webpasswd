@@ -33,7 +33,8 @@ def passwd_view():
             params['flash'] = 'Password successfully changed'
             form.username.data = None
         else:
-            form.errors['current_password'] = ['Invalid username or password.']
+            form._fields['current_password'].errors.append(
+                'Invalid username or password.')
     return flask.render_template('form.html', **params)
 
 
