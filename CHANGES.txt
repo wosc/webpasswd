@@ -4,6 +4,8 @@ CHANGES
 2.1.0 (unreleased)
 ------------------
 
+- Update to python-pam 2.0 API
+
 - Drop Python-2 support
 
 

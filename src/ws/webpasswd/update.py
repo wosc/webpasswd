@@ -1,34 +1,44 @@
-from ctypes import POINTER, cast, byref, sizeof
+from ctypes import CDLL, POINTER, cast, byref, sizeof
 from ctypes import c_char_p, c_char, c_int
 from ctypes import memmove
+from ctypes.util import find_library
 import sys
 import os
 import re
-import pam
+import pam.__internals as pam
 
 
 encoding = 'utf-8'
 
-pam_chauthtok = pam.libpam.pam_chauthtok
-pam_chauthtok.restype = c_int
-pam_chauthtok.argtypes = [pam.PamHandle, c_int]
+
+class LibPAM(pam.PamAuthenticator):
+
+    def __init__(self):
+        super().__init__()
+        libpam = CDLL(find_library("pam"))
+        self.pam_chauthtok = libpam.pam_chauthtok
+        self.pam_chauthtok.restype = c_int
+        self.pam_chauthtok.argtypes = [pam.PamHandle, c_int]
+
+
+libpam = LibPAM()
 
 
 def change_password(user, current, new):
-    """Copy&paste of pam.pam.pam_authenticate to add a `pam_chauthtok` call
+    """Copy&paste of PamAuthenticator.authenticate to add `pam_chauthtok`
     after a successful `pam_authenticate`."""
     @pam.conv_func
     def my_conv(n_messages, messages, p_response, app_data):
         """Simple conversation function that responds to any
         prompt where the echo is off with the supplied password"""
         # Create an array of n_messages response objects
-        addr = pam.calloc(n_messages, sizeof(pam.PamResponse))
+        addr = libpam.calloc(n_messages, sizeof(pam.PamResponse))
         response = cast(addr, POINTER(pam.PamResponse))
         p_response[0] = response
         for i in range(n_messages):
             if messages[i].contents.msg_style == pam.PAM_PROMPT_ECHO_OFF:
                 pwd = password[0]
-                dst = pam.calloc(len(pwd) + 1, sizeof(c_char))
+                dst = libpam.calloc(len(pwd) + 1, sizeof(c_char))
                 memmove(dst, c_char_p(pwd), len(pwd))
                 response[i].resp = dst
                 response[i].resp_retcode = 0
@@ -48,25 +58,25 @@ def change_password(user, current, new):
     password = [None]  # Closure transport mechanism into my_conv
     handle = pam.PamHandle()
     conv = pam.PamConv(my_conv, 0)
-    retval = pam.pam_start(service, user, byref(conv), byref(handle))
+    retval = libpam.pam_start(service, user, byref(conv), byref(handle))
     if retval != 0:
         raise RuntimeError('pam_start() failed')
 
     password[0] = current
-    retval = pam.pam_authenticate(handle, 0)
+    retval = libpam.pam_authenticate(handle, 0)
     error = None
     if retval != 0:
-        error = pam.pam_strerror(handle, retval).decode(encoding)
+        error = libpam.pam_strerror(handle, retval).decode(encoding)
         error = 'authenticate: %s' % error
 
     if error is None:
         password[0] = new
-        retval = pam_chauthtok(handle, 0)
+        retval = libpam.pam_chauthtok(handle, 0)
         if retval != 0:
-            error = pam.pam_strerror(handle, retval).decode(encoding)
+            error = libpam.pam_strerror(handle, retval).decode(encoding)
             error = 'chauthtok: %s' % error
 
-    pam.pam_end(handle, retval)
+    libpam.pam_end(handle, retval)
 
     if error is not None:
         raise RuntimeError('%s: %s' % (retval, error))

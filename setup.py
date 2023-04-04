@@ -11,7 +11,7 @@ setup(
     install_requires=[
         'flask',
         'flask_wtf',
-        'python-pam',
+        'python-pam >= 2.0.0',
         'six',  # undeclared by python-pam
         'setuptools',
         'wtforms',
