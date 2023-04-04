@@ -3,6 +3,17 @@ CHANGES
 
 .. towncrier release notes start
 
+2.1.0 (2023-04-04)
+------------------
+
+Changes
++++++++
+
+- Update to python-pam 2.0 API (pam)
+- Drop Python-2 support (py2)
+- Switch from setup.py to pyproject.toml (wheel)
+
+
 2.1.0 (unreleased)
 ------------------
 
