@@ -9,11 +9,6 @@ import pam
 
 encoding = 'utf-8'
 
-if sys.version_info >= (3,):
-    text_type = str
-else:
-    text_type = unicode
-
 pam_chauthtok = pam.libpam.pam_chauthtok
 pam_chauthtok.restype = c_int
 pam_chauthtok.argtypes = [pam.PamHandle, c_int]
@@ -41,13 +36,13 @@ def change_password(user, current, new):
 
     service = 'passwd'
     # python3 ctypes requires bytes
-    if isinstance(service, text_type):
+    if isinstance(service, str):
         service = service.encode(encoding)
-    if isinstance(user, text_type):
+    if isinstance(user, str):
         user = user.encode(encoding)
-    if isinstance(current, text_type):
+    if isinstance(current, str):
         current = current.encode(encoding)
-    if isinstance(new, text_type):
+    if isinstance(new, str):
         new = new.encode(encoding)
 
     password = [None]  # Closure transport mechanism into my_conv
@@ -61,18 +56,14 @@ def change_password(user, current, new):
     retval = pam.pam_authenticate(handle, 0)
     error = None
     if retval != 0:
-        error = pam.pam_strerror(handle, retval)
-        if sys.version_info >= (3,):
-            error = error.decode(encoding)
+        error = pam.pam_strerror(handle, retval).decode(encoding)
         error = 'authenticate: %s' % error
 
     if error is None:
         password[0] = new
         retval = pam_chauthtok(handle, 0)
         if retval != 0:
-            error = pam.pam_strerror(handle, retval)
-            if sys.version_info >= (3,):
-                error = error.decode(encoding)
+            error = pam.pam_strerror(handle, retval).decode(encoding)
             error = 'chauthtok: %s' % error
 
     pam.pam_end(handle, retval)
