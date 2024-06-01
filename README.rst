@@ -21,19 +21,17 @@ python -m pip install .
 Configuration
 =============
 
-Copy the file config/config.yml.default to the directory /etc/webpasswd/config.yml
+Copy the file config/config.yml.default to the file ``/etc/webpasswd/config.yml``::
 
-```
-pam:
-    service: "login"
-web:
-    ip: "127.0.0.1"
-    port: 8080
-user:
-    regex: "^[-_.a-z0-9]+$"
-```
+    pam:
+        service: "login"
+    web:
+        ip: "127.0.0.1"
+        port: 8080
+    user:
+        regex: "^[-_.a-z0-9]+$"
 
-`regex` is the regex to check valid users who can change their password from webpasswd
+``regex`` is the regex to check valid users who can change their password from webpasswd
 
 
 Usage
