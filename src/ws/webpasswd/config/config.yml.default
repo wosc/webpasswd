@@ -1,5 +1,7 @@
 pam:
    service: "passwd"
-
+web:
+   ip: "127.0.0.1"
+   port: 8080
 user:
    regex: "^[-_.a-z0-9]+$"
