@@ -12,9 +12,15 @@ import logging.handlers
 
 encoding = 'utf-8'
 
+# Path to config file
+config_path = "/etc/webpasswd/config.yml"
 
 # Load config file
-config = yaml.safe_load(open("config.yml"))
+try:
+    config = yaml.safe_load(open(config_path))
+except FileNotFoundError:
+    print(f"File {config_path} not found")
+    sys.exit(1)
 
 # Configure logger with SYLOG
 logger = logging.getLogger('webpasswd-change')
@@ -56,6 +62,7 @@ def change_password(user, current, new):
                 response[i].resp_retcode = 0
         return 0
 
+    # PAM service could be 'passwd' or 'login'
     service = config['pam']['service']
 
     # python3 ctypes requires bytes
@@ -86,10 +93,10 @@ def change_password(user, current, new):
     error = None
     if retval != 0:
         error = libpam.pam_strerror(handle, retval).decode(encoding)
-        logger.warning("user '%s' - %s" % (user.decode(), error))
+        logger.error("user '%s' - %s" % (user.decode(), error))
         error = 'authenticate: %s' % error
     else:
-        logger.info("user '%s' - Authentication success", user.decode())
+        logger.warning("user '%s' - Authentication success", user.decode())
 
     # Change user password
     if error is None:
@@ -97,7 +104,7 @@ def change_password(user, current, new):
         retval = libpam.pam_chauthtok(handle, 0)
         if retval != 0:
             error = libpam.pam_strerror(handle, retval).decode(encoding)
-            logger.warning("user '%s' - Change password failure (%s)" % (user.decode(), error))
+            logger.error("user '%s' - Change password failure (%s)" % (user.decode(), error))
             error = 'chauthtok: %s' % error
         else:
             logger.warning("user '%s' - Change password success", user.decode())
@@ -107,7 +114,7 @@ def change_password(user, current, new):
 
     # Check error
     if error is not None:
-        logger.warning('error: %s (ret_val: %s)' % (error, retval))
+        logger.error('error: %s (ret_val: %s)' % (error, retval))
         raise RuntimeError('%s: %s' % (retval, error))
 
 
@@ -117,10 +124,13 @@ def valid_user(user):
 
 def main():
     """Changes the UNIX password using PAM. Like passwd, but non-interactive.
-    Must be run with root privileges."""
-    if len(sys.argv) < 4:
+    Must be run with root privileges.
+    Sensitive informations (username, currrent password, new password)
+    are provided in temporary yaml file from webpasswd-server.
+    """
+    if len(sys.argv) < 2:
         sys.stderr.write(
-            'Usage: %s username current-password new-password\n' % sys.argv[0])
+            'Usage: %s tmp_yaml_file\n' % sys.argv[0])
         sys.exit(1)
 
     if os.getuid() != 0:
@@ -128,7 +138,17 @@ def main():
         sys.exit(1)
 
     # Parse arguments
-    user, current, new = sys.argv[1:4]
+    #user, current, new = sys.argv[1:4]
+    temp_file_path = sys.argv[1]
+
+    # Load sensitive arguments from temp file
+    with open(temp_file_path, 'r') as temp_file:
+        data = yaml.safe_load(temp_file)
+
+    # Parse yaml file
+    user = data['username']
+    current = data['current']
+    new = data['new']
 
     # Configure log verbosity
     debug = '--debug' in sys.argv
@@ -139,15 +159,16 @@ def main():
 
     # Only change password for valid user
     if valid_user(user):
-        logger.info("user '%s' - Valid user check success", user)
+        logger.warning("user '%s' - Valid user check success", user)
         try:
             change_password(user, current, new)
             sys.exit(0)
         except Exception as e:
+            logger.critical("Exception: '%s'", e)
             if debug:
                 sys.stderr.write('%s\n' % e)
     else:
-        logger.info("user '%s' - Valid user check failure", user)
+        logger.error("user '%s' - Valid user check failure", user)
 
 
     sys.stderr.write('Error: Invalid username or password.\n')
