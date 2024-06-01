@@ -8,6 +8,7 @@ dependencies = [
   "python-pam >= 2.0.0",
   "six",  # undeclared by python-pam
   "wtforms",
+  "pyyaml",
 ]
 optional-dependencies = {test=[
   "pytest",

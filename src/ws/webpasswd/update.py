@@ -6,9 +6,21 @@ import sys
 import os
 import re
 import pam.__internals as pam
-
+import yaml
+import logging
+import logging.handlers
 
 encoding = 'utf-8'
+
+
+# Load config file
+config = yaml.safe_load(open("config.yml"))
+
+# Configure logger with SYLOG
+logger = logging.getLogger('webpasswd-change')
+facility = logging.handlers.SysLogHandler.LOG_DAEMON
+handler = logging.handlers.SysLogHandler(facility=facility, address='/dev/log')
+logger.addHandler(handler)
 
 
 class LibPAM(pam.PamAuthenticator):
@@ -44,7 +56,8 @@ def change_password(user, current, new):
                 response[i].resp_retcode = 0
         return 0
 
-    service = 'passwd'
+    service = config['pam']['service']
+
     # python3 ctypes requires bytes
     if isinstance(service, str):
         service = service.encode(encoding)
@@ -58,32 +71,48 @@ def change_password(user, current, new):
     password = [None]  # Closure transport mechanism into my_conv
     handle = pam.PamHandle()
     conv = pam.PamConv(my_conv, 0)
-    retval = libpam.pam_start(service, user, byref(conv), byref(handle))
-    if retval != 0:
-        raise RuntimeError('pam_start() failed')
 
+    # Start pam
+    retval = libpam.pam_start(service, user, byref(conv), byref(handle))
+    error = None
+    if retval != 0:
+        error = 'pam_start() failed'
+        logger.warning(error)
+        raise RuntimeError(error)
+
+    # Authenticate user
     password[0] = current
     retval = libpam.pam_authenticate(handle, 0)
     error = None
     if retval != 0:
         error = libpam.pam_strerror(handle, retval).decode(encoding)
+        logger.warning("user '%s' - %s" % (user.decode(), error))
         error = 'authenticate: %s' % error
+    else:
+        logger.info("user '%s' - Authentication success", user.decode())
 
+    # Change user password
     if error is None:
         password[0] = new
         retval = libpam.pam_chauthtok(handle, 0)
         if retval != 0:
             error = libpam.pam_strerror(handle, retval).decode(encoding)
+            logger.warning("user '%s' - Change password failure (%s)" % (user.decode(), error))
             error = 'chauthtok: %s' % error
+        else:
+            logger.warning("user '%s' - Change password success", user.decode())
 
+    # End pam
     libpam.pam_end(handle, retval)
 
+    # Check error
     if error is not None:
+        logger.warning('error: %s (ret_val: %s)' % (error, retval))
         raise RuntimeError('%s: %s' % (retval, error))
 
 
 def valid_user(user):
-    return user != 'root' and re.search('^[-_.a-z0-9]+$', user)
+    return user != 'root' and re.search(config['user']['regex'], user)
 
 
 def main():
@@ -98,16 +127,28 @@ def main():
         sys.stderr.write('%s: root privileges required.\n' % sys.argv[0])
         sys.exit(1)
 
+    # Parse arguments
     user, current, new = sys.argv[1:4]
-    debug = '--debug' in sys.argv
 
+    # Configure log verbosity
+    debug = '--debug' in sys.argv
+    if debug:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.WARNING)
+
+    # Only change password for valid user
     if valid_user(user):
+        logger.info("user '%s' - Valid user check success", user)
         try:
             change_password(user, current, new)
             sys.exit(0)
         except Exception as e:
             if debug:
                 sys.stderr.write('%s\n' % e)
+    else:
+        logger.info("user '%s' - Valid user check failure", user)
+
 
     sys.stderr.write('Error: Invalid username or password.\n')
     sys.exit(1)
