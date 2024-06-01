@@ -1,0 +1,5 @@
+pam:
+   service: "passwd"
+
+user:
+   regex: "^[-_.a-z0-9]+$"
