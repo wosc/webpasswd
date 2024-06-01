@@ -3,14 +3,16 @@ CHANGES
 
 .. towncrier release notes start
 
-2.2.0-dev (2023-06-01)
+2.2.1-dev (2023-06-01)
 ------------------
 
 Changes
 +++++++
 
-- Use configuration file: config.yml
-- Log messages to syslog
+- Use configuration file: /etc/webpasswd/config.yml
+- Log informations to syslog
+- Provide passwords through temporary yaml file instead of args in command line
+
 
 2.1.0 (2023-04-04)
 ------------------
