@@ -88,7 +88,7 @@ def changepasswd(username, current, new):
     result = subprocess.run(['sudo', webpasswd_change, temp_file_path], capture_output=True, text=True)
 
     # Remove temporary file
-    #os.remove(temp_file_path)
+    os.remove(temp_file_path)
 
     # Return status
     return result.returncode
