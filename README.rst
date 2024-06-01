@@ -21,7 +21,7 @@ python -m pip install .
 Configuration
 =============
 
-Copy the file config/config.yml.default to the file ``/etc/webpasswd/config.yml``::
+Copy the file ``config/config.yml.default`` to ``/etc/webpasswd/config.yml``::
 
     pam:
         service: "login"
@@ -31,7 +31,7 @@ Copy the file config/config.yml.default to the file ``/etc/webpasswd/config.yml`
     user:
         regex: "^[-_.a-z0-9]+$"
 
-``regex`` is the regex to check valid users who can change their password from webpasswd
+``regex`` is the regex to check valid users who can change their password from the web ui.
 
 
 Usage
