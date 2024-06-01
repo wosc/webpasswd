@@ -9,12 +9,21 @@ WARNING: The passwords are stored in plaintext in a temporaty file and passed fr
 the CGI process to the helper process that runs under sudo. So maybe don't use this
 in an adversarial environment where people might spy on your process list or something.
 
+
+Installation
+============
+
+```
+python -m pip install .
+```
+
+
 Configuration
 =============
 
 Copy the file config/config.yml.default to the directory /etc/webpasswd/config.yml
 
-```yaml
+```
 pam:
     service: "login"
 web:
