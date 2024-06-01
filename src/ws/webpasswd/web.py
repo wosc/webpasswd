@@ -9,8 +9,20 @@ import subprocess
 import sys
 import wsgiref.handlers
 import wsgiref.simple_server
+import tempfile
+import yaml
 
+# Path to config file
+config_path = "/etc/webpasswd/config.yml"
 
+# Load config file
+try:
+    config = yaml.safe_load(open(config_path))
+except FileNotFoundError:
+    print(f"File {config_path} not found")
+    sys.exit(1)
+
+# Configure flask app
 app = flask.Flask(__name__)
 # We don't have any state, so we're not vulnerable to CSRF
 app.config['WTF_CSRF_ENABLED'] = False
@@ -29,12 +41,16 @@ def passwd_view():
         success = changepasswd(
             form.username.data,
             form.current_password.data, form.new_password.data)
-        if success:
+        if success==0:
             params['flash'] = 'Password successfully changed'
             form.username.data = None
-        else:
+        elif success==1:
             form._fields['current_password'].errors.append(
                 'Invalid username or password.')
+        else:
+            form._fields['current_password'].errors.append(
+                'Could not change password.')
+
     return flask.render_template('form.html', **params)
 
 
@@ -55,12 +71,27 @@ def changepasswd(username, current, new):
     if not webpasswd_change:
         webpasswd_change = os.path.join(
             os.path.dirname(sys.executable), 'webpasswd-change')
-    proc = subprocess.Popen(
-        ['sudo', webpasswd_change, username, current, new],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    status = proc.wait()
-    return status == 0
 
+    # Serialize sensitive arguments in yaml string
+    data = {
+        'username': username,
+        'current': current,
+        'new': new
+    }
+    
+    # Create a temporary file to store sensitive arguments
+    with tempfile.NamedTemporaryFile(delete=False, mode='wt') as temp_file:
+        temp_file_path = temp_file.name
+        yaml.dump(data, temp_file)
+
+    # Call webpasswd_change using sudo and pass the path of the temporary file as an argument
+    result = subprocess.run(['sudo', webpasswd_change, temp_file_path], capture_output=True, text=True)
+
+    # Remove temporary file
+    #os.remove(temp_file_path)
+
+    # Return status
+    return result.returncode
 
 @app.errorhandler(Exception)
 def handle_error(error):
@@ -74,4 +105,10 @@ def cgi():
 
 
 def serve():
-    wsgiref.simple_server.make_server('', 8080, app.wsgi_app).serve_forever()
+    # Load parameters from config file
+    server = config.get('web')
+    port = server.get('port', 8080)
+    ip = server.get('ip', '')
+    # Start server
+    print("Starting webpasswd server, on port", port)
+    wsgiref.simple_server.make_server(ip, port, app.wsgi_app).serve_forever()
