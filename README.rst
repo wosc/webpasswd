@@ -5,9 +5,26 @@ Web-based UNIX password change
 This packages provides a web UI for the UNIX ``passwd`` command, e.g. so that
 SFTP-only user accounts can still change their password.
 
-WARNING: The passwords are passed in plaintext via popen from the CGI process to
-the helper process that runs under sudo. So maybe don't use this in an
+WARNING: The passwords are stored in plaintext in a temporaty file from the CGI
+process to the helper process that runs under sudo. So maybe don't use this in an
 adversarial environment where people might spy on your process list or something.
+
+Configuration
+=============
+
+Copy the file config/config.yml.default to the directory /etc/webpasswd/config.yml
+
+```yaml
+pam:
+    service: "login"
+web:
+    ip: "127.0.0.1"
+    port: 8080
+user:
+    regex: "^[-_.a-z0-9]+$"
+```
+
+`regex` is the regex to check valid users who can change their password from webpasswd
 
 
 Usage
