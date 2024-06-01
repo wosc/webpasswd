@@ -5,9 +5,9 @@ Web-based UNIX password change
 This packages provides a web UI for the UNIX ``passwd`` command, e.g. so that
 SFTP-only user accounts can still change their password.
 
-WARNING: The passwords are stored in plaintext in a temporaty file from the CGI
-process to the helper process that runs under sudo. So maybe don't use this in an
-adversarial environment where people might spy on your process list or something.
+WARNING: The passwords are stored in plaintext in a temporaty file and passed from
+the CGI process to the helper process that runs under sudo. So maybe don't use this
+in an adversarial environment where people might spy on your process list or something.
 
 Configuration
 =============
