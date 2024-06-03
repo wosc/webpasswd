@@ -14,14 +14,6 @@ Changes
 - Switch from setup.py to pyproject.toml (wheel)
 
 
-2.1.0 (unreleased)
-------------------
-
-- Update to python-pam 2.0 API
-
-- Drop Python-2 support
-
-
 2.0.1 (2018-03-05)
 ------------------
 
