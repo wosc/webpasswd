@@ -3,6 +3,15 @@ CHANGES
 
 .. towncrier release notes start
 
+2.2.0 (2024-06-03)
+------------------
+
+Changes
++++++++
+
+- stdin: Transmit password via stdin instead of cli parameters (stdin)
+
+
 2.1.0 (2023-04-04)
 ------------------
 
