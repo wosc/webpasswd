@@ -34,7 +34,8 @@ Copy the file ``config/config.yml.default`` to ``/etc/webpasswd/config.yml``::
     user:
         regex: "^[-_.a-z0-9]+$"
 
-``regex`` is the regex to check valid users who can change their password from the web ui.
+- ``service`` could be ``passwd`` or ``login`` depending on the PAM service configuration. 
+- ``regex`` is the regex to check valid users who can change their password from the web ui.
 
 
 Usage
