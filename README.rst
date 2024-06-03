@@ -5,7 +5,7 @@ Web-based UNIX password change
 This packages provides a web UI for the UNIX ``passwd`` command, e.g. so that
 SFTP-only user accounts can still change their password.
 
-WARNING: The passwords are stored in plaintext in a temporaty file and passed from
+WARNING: The passwords are stored in plaintext in a temporary file and passed from
 the CGI process to the helper process that runs under sudo. So maybe don't use this
 in an adversarial environment where people might spy on your process list or something.
 
@@ -13,9 +13,12 @@ in an adversarial environment where people might spy on your process list or som
 Installation
 ============
 
-```
-python -m pip install .
-```
+Installation in a virtual installation for user ``www-data``::
+
+    sudo -i www-data -s /bin/bash
+    python -m venv /path/to/venv
+    source /path/to/venv/bin/activate 
+    python -m pip install .
 
 
 Configuration
