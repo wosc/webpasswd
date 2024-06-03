@@ -15,18 +15,22 @@ def test_valid_user():
     assert valid_user('foo_bar')
 
 
-def passwd(*args, **kw):
-    kw.setdefault('sudo', True)
+def passwd(user, current, new, sudo=True):
     webpasswd_change = os.path.join(
         os.path.dirname(sys.executable), 'webpasswd-change')
-    args = (webpasswd_change,) + args
-    if kw['sudo']:
-        args = ('sudo',) + args
+    cmd = (webpasswd_change,)
+    if user:
+        cmd += (user,)
+    if sudo:
+        cmd = ('sudo',) + cmd
     proc = subprocess.Popen(
-        args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        stdin=subprocess.PIPE)
+    if sys.version_info >= (3,):
+        current = current.encode('utf-8')
+        new = new.encode('utf-8')
+    stdout, stderr = proc.communicate(b'\n'.join([current, new]))
     status = proc.wait()
-    stdout = proc.stdout.read()
-    stderr = proc.stderr.read()
     if sys.version_info >= (3,):
         stdout = stdout.decode('utf-8')
         stderr = stderr.decode('utf-8')
@@ -34,7 +38,7 @@ def passwd(*args, **kw):
 
 
 def test_insufficient_arguments_should_fail():
-    status, stdout, stderr = passwd()
+    status, stdout, stderr = passwd('', '', '')
     assert status != 0
     assert 'Usage' in stderr
 

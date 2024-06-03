@@ -89,17 +89,17 @@ def valid_user(user):
 def main():
     """Changes the UNIX password using PAM. Like passwd, but non-interactive.
     Must be run with root privileges."""
-    if len(sys.argv) < 4:
-        sys.stderr.write(
-            'Usage: %s username current-password new-password\n' % sys.argv[0])
+    if len(sys.argv) < 2:
+        sys.stderr.write('Usage: %s username\n' % sys.argv[0])
         sys.exit(1)
 
     if os.getuid() != 0:
         sys.stderr.write('%s: root privileges required.\n' % sys.argv[0])
         sys.exit(1)
 
-    user, current, new = sys.argv[1:4]
+    user = sys.argv[1]
     debug = '--debug' in sys.argv
+    current, new = [x.strip('\n') for x in sys.stdin]
 
     if valid_user(user):
         try:
