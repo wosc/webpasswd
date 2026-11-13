@@ -3,6 +3,15 @@ CHANGES
 
 .. towncrier release notes start
 
+ws.webpasswd 2.3.0 (2026-11-13)
+-------------------------------
+
+Changes
++++++++
+
+- Make sudo binary configurable (sudo)
+
+
 2.2.0 (2024-06-03)
 ------------------
 
