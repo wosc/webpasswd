@@ -60,8 +60,7 @@ def changepasswd(username, current, new):
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE,
         encoding='utf-8', text=True)
     proc.communicate(f'{current}\n{new}')
-    status = proc.wait()
-    return status == 0
+    return proc.returncode == 0
 
 
 @app.errorhandler(Exception)
