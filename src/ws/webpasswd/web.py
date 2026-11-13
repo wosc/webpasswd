@@ -55,8 +55,9 @@ def changepasswd(username, current, new):
     if not webpasswd_change:
         webpasswd_change = os.path.join(
             os.path.dirname(sys.executable), 'webpasswd-change')
+    sudo = os.environ.get('WEBPASSWD_SUDO', 'sudo')
     proc = subprocess.Popen(
-        ['sudo', webpasswd_change, username],
+        [sudo, webpasswd_change, username],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE,
         encoding='utf-8', text=True)
     proc.communicate(f'{current}\n{new}')

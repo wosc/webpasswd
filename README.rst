@@ -26,6 +26,7 @@ You can pass the following environment variables to the CGI script:
 
 :WEBPASSWD_CHANGE: Path to ``webpasswd-change`` helper. If unset, assumes
     a virtualenv installation (so it's located next to ``webpasswd-cgi``)
+:WEBPASSWD_SUDO: Path to ``sudo`` binary. There seems to be a file descriptor polling bug in ``sudo-rs`` causing it to hang, so set this to ``sudo.ws`` as a workaround.
 :WEBPASSWD_STYLESHEET: URL to a stylesheet to link to instead of using the
     built-in styles
 
