@@ -5,8 +5,7 @@ description = "Change a UNIX password via web UI"
 dependencies = [
   "flask",
   "flask_wtf",
-  "python-pam >= 2.0.0",
-  "six",  # undeclared by python-pam
+  "python-pam >= 2.1.0",
   "wtforms",
 ]
 optional-dependencies = {test=[
